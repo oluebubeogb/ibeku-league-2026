@@ -40,18 +40,22 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/package.json ./package.json
 
-# Generated Prisma Client from build (query engine)
+# Generated Prisma Client (query engine) for the app + seed
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
 
-# Install prisma CLI + bcryptjs so migrate + seed work at runtime
+# Install prisma CLI in a SEPARATE directory (complete dep tree; avoids standalone conflicts)
 USER root
-RUN npm install --omit=dev --no-save prisma@6.19.3 bcryptjs@2.4.3 && \
+WORKDIR /prisma-tools
+RUN npm init -y >/dev/null 2>&1 && \
+    npm install --omit=dev prisma@6.19.3 bcryptjs@2.4.3 && \
     ./node_modules/.bin/prisma --version
 
+WORKDIR /app
 COPY scripts/entrypoint.sh ./scripts/entrypoint.sh
 RUN chmod +x ./scripts/entrypoint.sh && \
-    chown -R nextjs:nodejs /app
+    chown -R nextjs:nodejs /app /prisma-tools
 
 USER nextjs
 EXPOSE 3000

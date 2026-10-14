@@ -3,7 +3,12 @@
  * Idempotent — safe to run on every start.
  */
 const { PrismaClient } = require("@prisma/client");
-const bcrypt = require("bcryptjs");
+let bcrypt;
+try {
+  bcrypt = require("bcryptjs");
+} catch {
+  bcrypt = require("/prisma-tools/node_modules/bcryptjs");
+}
 
 const prisma = new PrismaClient();
 

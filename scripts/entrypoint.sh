@@ -23,19 +23,20 @@ const p = new PrismaClient();
 WAIT_DB
 
 echo "[entrypoint] Running migrations…"
-if [ -x ./node_modules/.bin/prisma ]; then
-  PRISMA="./node_modules/.bin/prisma"
-else
-  PRISMA="node ./node_modules/prisma/build/index.js"
+PRISMA="/prisma-tools/node_modules/.bin/prisma"
+if [ ! -x "$PRISMA" ]; then
+  PRISMA="node /prisma-tools/node_modules/prisma/build/index.js"
 fi
-echo "[entrypoint] Using prisma: $PRISMA"
+echo "[entrypoint] Using: $PRISMA"
 
+cd /app
 $PRISMA migrate deploy || {
   echo "[entrypoint] migrate deploy failed — trying db push…"
-  $PRISMA db push --accept-data-loss
+  $PRISMA db push --accept-data-loss --skip-generate
 }
 
 echo "[entrypoint] Seeding (idempotent)…"
+export NODE_PATH="/prisma-tools/node_modules:${NODE_PATH:-}"
 if [ -f ./prisma/seed.js ]; then
   node ./prisma/seed.js || echo "[entrypoint] Seed reported an error (continuing)"
 else
