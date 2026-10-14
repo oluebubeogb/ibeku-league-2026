@@ -155,7 +155,10 @@ model Team {
   name        String
   slug        String   @unique
   groupId     String
-  shortName   String?  // for monograms
+  shortName   String?  // 3-char code, admin-editable
+  color1      String   @default("#16a34a") // flag stripe top
+  color2      String   @default("#ffffff") // flag stripe middle
+  color3      String   @default("#0f172a") // flag stripe bottom
   description String?
   status      String   @default("ACTIVE")
   createdAt   DateTime @default(now())

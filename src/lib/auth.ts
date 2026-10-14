@@ -11,7 +11,9 @@ const SESSION_DAYS = 14;
 function getSecret() {
   const secret = process.env.SESSION_SECRET;
   if (!secret || secret.length < 32) {
-    throw new Error("SESSION_SECRET must be set and at least 32 characters");
+    throw new Error(
+      "SESSION_SECRET is missing or shorter than 32 characters. Set it in Coolify environment variables."
+    );
   }
   return new TextEncoder().encode(secret);
 }

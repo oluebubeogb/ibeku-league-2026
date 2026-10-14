@@ -31,6 +31,9 @@ export default async function GroupsPage() {
       slug: t.slug,
       shortName: t.shortName,
       groupCode: g.code,
+      color1: (t as { color1?: string }).color1,
+      color2: (t as { color2?: string }).color2,
+      color3: (t as { color3?: string }).color3,
     }));
     const matchInputs = finished
       .filter((m) => m.groupId === g.id && m.homeTeamId && m.awayTeamId)
@@ -42,10 +45,11 @@ export default async function GroupsPage() {
         status: m.status,
         stage: m.stage,
       }));
-    return {
-      group: g,
-      rows: calculateGroupTable(teamInputs, matchInputs),
-    };
+    const rows = calculateGroupTable(teamInputs, matchInputs).map((r) => {
+      const t = teamInputs.find((x) => x.id === r.teamId);
+      return { ...r, color1: t?.color1, color2: t?.color2, color3: t?.color3 };
+    });
+    return { group: g, rows };
   });
 
   return (
@@ -56,6 +60,15 @@ export default async function GroupsPage() {
           Top two teams in each group qualify for the quarter-finals.
         </p>
       </div>
+
+      {tables.map(({ group, rows }) => (
+        <section key={group.id}>
+          <h2 className="mb-2 text-lg font-bold text-slate-900">Group {group.code}</h2>
+          <div className="card p-3">
+            <StandingsTable rows={rows} />
+          </div>
+        </section>
+      ))}
 
       <div className="card p-4 text-sm text-slate-600">
         <p className="font-medium text-slate-800">Tie-break order</p>
@@ -69,15 +82,6 @@ export default async function GroupsPage() {
           Qualification is always within each group. Cross-group points do not affect who advances.
         </p>
       </div>
-
-      {tables.map(({ group, rows }) => (
-        <section key={group.id}>
-          <h2 className="mb-2 text-lg font-bold text-slate-900">Group {group.code}</h2>
-          <div className="card p-3">
-            <StandingsTable rows={rows} />
-          </div>
-        </section>
-      ))}
     </div>
   );
 }

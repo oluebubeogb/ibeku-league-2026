@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { formatMatchDate, formatMatchTime, statusLabel, statusColor, teamInitials } from "@/lib/utils";
+import { formatMatchDate, formatMatchTime, statusLabel, statusColor } from "@/lib/utils";
+import { TeamFlag } from "@/components/TeamFlag";
 
 interface MatchCardProps {
   id: string;
@@ -7,6 +8,12 @@ interface MatchCardProps {
   awayName: string;
   homeShort?: string | null;
   awayShort?: string | null;
+  homeColor1?: string | null;
+  homeColor2?: string | null;
+  homeColor3?: string | null;
+  awayColor1?: string | null;
+  awayColor2?: string | null;
+  awayColor3?: string | null;
   homeScore?: number | null;
   awayScore?: number | null;
   htHome?: number | null;
@@ -23,8 +30,12 @@ export function MatchCard({
   id,
   homeName,
   awayName,
-  homeShort,
-  awayShort,
+  homeColor1,
+  homeColor2,
+  homeColor3,
+  awayColor1,
+  awayColor2,
+  awayColor3,
   homeScore,
   awayScore,
   htHome,
@@ -54,17 +65,20 @@ export function MatchCard({
         <span className={`badge ${statusColor(status)}`}>{statusLabel(status)}</span>
       </div>
 
-      <div className="flex items-center gap-3">
-        <div className="flex flex-1 flex-col items-end gap-1">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-slate-900 text-right">{displayHome}</span>
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-700">
-              {teamInitials(displayHome, homeShort)}
-            </span>
-          </div>
+      <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
+          <span className="truncate text-right text-sm font-semibold text-slate-900">
+            {displayHome}
+          </span>
+          <TeamFlag
+            color1={homeColor1}
+            color2={homeColor2}
+            color3={homeColor3}
+            title={displayHome}
+          />
         </div>
 
-        <div className="flex w-16 flex-col items-center">
+        <div className="flex w-14 shrink-0 flex-col items-center sm:w-16">
           {showScore ? (
             <>
               <span className="text-xl font-bold tabular-nums text-slate-900">
@@ -81,13 +95,14 @@ export function MatchCard({
           )}
         </div>
 
-        <div className="flex flex-1 flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-700">
-              {teamInitials(displayAway, awayShort)}
-            </span>
-            <span className="text-sm font-semibold text-slate-900">{displayAway}</span>
-          </div>
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          <TeamFlag
+            color1={awayColor1}
+            color2={awayColor2}
+            color3={awayColor3}
+            title={displayAway}
+          />
+          <span className="truncate text-sm font-semibold text-slate-900">{displayAway}</span>
         </div>
       </div>
     </Link>

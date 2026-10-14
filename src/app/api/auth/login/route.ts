@@ -24,9 +24,7 @@ export async function POST(req: NextRequest) {
     }
 
     const { identifier, password } = parsed.data;
-    const normalized = identifier.includes("@")
-      ? identifier.trim().toLowerCase()
-      : normalizeUsername(identifier);
+    const normalized = normalizeUsername(identifier);
     const phoneNorm = normalizePhone(identifier);
 
     const user = await prisma.user.findFirst({
@@ -39,7 +37,6 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Generic error to avoid account enumeration
     if (!user || !(await verifyPassword(password, user.passwordHash))) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
@@ -48,9 +45,16 @@ export async function POST(req: NextRequest) {
     await setSessionCookie(token);
 
     const redirect = isAdmin(user.role) ? "/admin" : "/";
-    return NextResponse.json({ ok: true, redirect });
+    return NextResponse.json({ ok: true, redirect, role: user.role });
   } catch (e) {
     console.error("login error", e);
+    const msg = e instanceof Error ? e.message : "";
+    if (msg.includes("SESSION_SECRET")) {
+      return NextResponse.json(
+        { error: "Server misconfigured: SESSION_SECRET must be 32+ characters in Coolify." },
+        { status: 500 }
+      );
+    }
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

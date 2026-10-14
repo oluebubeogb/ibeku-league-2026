@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
 import { getSessionUser, isAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { TeamEditor } from "@/components/TeamEditor";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Admin · Teams" };
 
 export default async function AdminTeamsPage() {
   const user = await getSessionUser();
@@ -16,25 +18,30 @@ export default async function AdminTeamsPage() {
   return (
     <div className="container-app space-y-6 py-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Teams</h1>
-        <a href="/admin" className="btn-secondary text-sm">← Dashboard</a>
+        <div>
+          <h1 className="text-2xl font-bold">Teams</h1>
+          <p className="text-sm text-slate-500">
+            Edit names, short codes and 3-stripe flag colours
+          </p>
+        </div>
+        <a href="/admin" className="btn-secondary text-sm">
+          ← Dashboard
+        </a>
       </div>
-      <div className="card divide-y divide-slate-100">
-        {teams.map((t) => (
-          <div key={t.id} className="flex items-center justify-between px-4 py-3 text-sm">
-            <div>
-              <p className="font-medium">{t.name}</p>
-              <p className="text-xs text-slate-500">
-                Group {t.group.code} · {t.slug} · {t._count.players} players
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-      <p className="text-xs text-slate-400">
-        Team names and groups are seeded. Group reassignment is available via Prisma Studio or a
-        future edit form; historical match records are not rewritten.
-      </p>
+
+      <TeamEditor
+        teams={teams.map((t) => ({
+          id: t.id,
+          name: t.name,
+          slug: t.slug,
+          shortName: t.shortName,
+          color1: (t as { color1?: string }).color1 || "#16a34a",
+          color2: (t as { color2?: string }).color2 || "#ffffff",
+          color3: (t as { color3?: string }).color3 || "#0f172a",
+          groupCode: t.group.code,
+          playerCount: t._count.players,
+        }))}
+      />
     </div>
   );
 }

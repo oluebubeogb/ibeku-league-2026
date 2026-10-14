@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
-import { teamInitials } from "@/lib/utils";
+import { TeamFlag } from "@/components/TeamFlag";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Teams" };
@@ -28,12 +28,19 @@ export default async function TeamsPage() {
                 href={`/teams/${t.slug}`}
                 className="card flex items-center gap-3 p-4 transition hover:border-emerald-300"
               >
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-sm font-bold text-slate-700">
-                  {teamInitials(t.name, t.shortName)}
-                </span>
+                <TeamFlag
+                  color1={(t as { color1?: string }).color1}
+                  color2={(t as { color2?: string }).color2}
+                  color3={(t as { color3?: string }).color3}
+                  size="lg"
+                  title={t.name}
+                />
                 <div>
                   <p className="font-semibold text-slate-900">{t.name}</p>
-                  <p className="text-xs text-slate-500">Group {g.code}</p>
+                  <p className="text-xs text-slate-500">
+                    Group {g.code}
+                    {t.shortName ? ` · ${t.shortName}` : ""}
+                  </p>
                 </div>
               </Link>
             ))}

@@ -64,12 +64,43 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const token = await createSession(user.id);
-    await setSessionCookie(token);
+    try {
+      const token = await createSession(user.id);
+      await setSessionCookie(token);
+    } catch (sessionErr) {
+      const msg = sessionErr instanceof Error ? sessionErr.message : "";
+      console.error("signup session error", sessionErr);
+      if (msg.includes("SESSION_SECRET")) {
+        return NextResponse.json(
+          {
+            error:
+              "Account created but login session failed. Set SESSION_SECRET (32+ characters) in Coolify, then log in.",
+          },
+          { status: 500 }
+        );
+      }
+      return NextResponse.json(
+        { error: "Account created. Please log in." },
+        { status: 201 }
+      );
+    }
 
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error("signup error", e);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    const msg = e instanceof Error ? e.message : "";
+    if (msg.includes("SESSION_SECRET")) {
+      return NextResponse.json(
+        { error: "Server misconfigured: SESSION_SECRET must be set (32+ characters) in Coolify." },
+        { status: 500 }
+      );
+    }
+    if (msg.includes("Unique constraint") || msg.includes("unique")) {
+      return NextResponse.json(
+        { error: "Username or phone number already registered" },
+        { status: 409 }
+      );
+    }
+    return NextResponse.json({ error: "Server error. Please try again." }, { status: 500 });
   }
 }

@@ -25,6 +25,9 @@ export default async function StandingsPage() {
     slug: t.slug,
     shortName: t.shortName,
     groupCode: t.group.code,
+    color1: (t as { color1?: string }).color1,
+    color2: (t as { color2?: string }).color2,
+    color3: (t as { color3?: string }).color3,
   }));
   const matchInputs = finished
     .filter((m) => m.homeTeamId && m.awayTeamId)
@@ -37,7 +40,10 @@ export default async function StandingsPage() {
       stage: m.stage,
     }));
 
-  const rows = calculateOverallRanking(teamInputs, matchInputs);
+  const rows = calculateOverallRanking(teamInputs, matchInputs).map((r) => {
+    const t = teamInputs.find((x) => x.id === r.teamId);
+    return { ...r, color1: t?.color1, color2: t?.color2, color3: t?.color3 };
+  });
 
   return (
     <div className="container-app space-y-6 py-6">

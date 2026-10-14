@@ -173,8 +173,9 @@ async function main() {
   const phone = process.env.PRIMARY_ADMIN_PHONE;
   if (username && password && phone) {
     const existing = await prisma.user.findFirst({ where: { role: "PRIMARY_ADMIN" } });
+    const forceReset = process.env.FORCE_PRIMARY_ADMIN_RESET === "true";
+    const passwordHash = await bcrypt.hash(password, 12);
     if (!existing) {
-      const passwordHash = await bcrypt.hash(password, 12);
       await prisma.user.create({
         data: {
           username: username.trim(),
@@ -187,8 +188,21 @@ async function main() {
         },
       });
       console.log("[seed] Primary admin created");
+    } else if (forceReset) {
+      await prisma.user.update({
+        where: { id: existing.id },
+        data: {
+          username: username.trim(),
+          normalizedUsername: username.trim().toLowerCase(),
+          phone: phone.trim(),
+          normalizedPhone: phone.replace(/\D/g, ""),
+          passwordHash,
+          status: "ACTIVE",
+        },
+      });
+      console.log("[seed] Primary admin password RESET via FORCE_PRIMARY_ADMIN_RESET");
     } else {
-      console.log("[seed] Primary admin already exists — password not reset");
+      console.log("[seed] Primary admin already exists — password not reset (set FORCE_PRIMARY_ADMIN_RESET=true once to reset)");
     }
   } else {
     console.log("[seed] PRIMARY_ADMIN_* not set — skipping admin bootstrap");

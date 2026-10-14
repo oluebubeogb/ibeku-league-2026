@@ -133,6 +133,12 @@ export default async function HomePage() {
                 awayName={m.awayTeam?.name || ""}
                 homeShort={m.homeTeam?.shortName}
                 awayShort={m.awayTeam?.shortName}
+                homeColor1={(m.homeTeam as { color1?: string } | null)?.color1}
+                homeColor2={(m.homeTeam as { color2?: string } | null)?.color2}
+                homeColor3={(m.homeTeam as { color3?: string } | null)?.color3}
+                awayColor1={(m.awayTeam as { color1?: string } | null)?.color1}
+                awayColor2={(m.awayTeam as { color2?: string } | null)?.color2}
+                awayColor3={(m.awayTeam as { color3?: string } | null)?.color3}
                 homeScore={m.fullTimeHomeScore}
                 awayScore={m.fullTimeAwayScore}
                 status={m.status}
@@ -165,6 +171,12 @@ export default async function HomePage() {
                 awayName={m.awayTeam?.name || ""}
                 homeShort={m.homeTeam?.shortName}
                 awayShort={m.awayTeam?.shortName}
+                homeColor1={(m.homeTeam as { color1?: string } | null)?.color1}
+                homeColor2={(m.homeTeam as { color2?: string } | null)?.color2}
+                homeColor3={(m.homeTeam as { color3?: string } | null)?.color3}
+                awayColor1={(m.awayTeam as { color1?: string } | null)?.color1}
+                awayColor2={(m.awayTeam as { color2?: string } | null)?.color2}
+                awayColor3={(m.awayTeam as { color3?: string } | null)?.color3}
                 homeScore={m.fullTimeHomeScore}
                 awayScore={m.fullTimeAwayScore}
                 htHome={m.halfTimeHomeScore}
