@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getSessionUser, isAdmin } from "@/lib/auth";
+import { FullscreenButton } from "@/components/FullscreenButton";
 
 const NAV = [
   { href: "/", label: "Home" },
@@ -15,13 +16,13 @@ export async function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
-      <div className="container-app flex h-14 items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-2 font-bold text-slate-900">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600 text-xs text-white">
+      <div className="container-app flex h-12 items-center justify-between gap-2 sm:h-14 sm:gap-4">
+        <Link href="/" className="flex min-w-0 items-center gap-1.5 font-bold text-slate-900 sm:gap-2">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-[10px] text-white sm:h-8 sm:w-8 sm:text-xs">
             IL
           </span>
-          <span className="hidden sm:inline">Ibeku League 2026</span>
-          <span className="sm:hidden">Ibeku 2026</span>
+          <span className="hidden truncate sm:inline">Ibeku League 2026</span>
+          <span className="truncate text-sm sm:hidden">Ibeku</span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
@@ -36,27 +37,28 @@ export async function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+          <FullscreenButton />
           {user ? (
             <>
               {isAdmin(user.role) && (
-                <Link href="/admin" className="btn-secondary text-xs py-1.5 px-2.5">
+                <Link href="/admin" className="btn-secondary hidden text-xs py-1.5 px-2.5 sm:inline-flex">
                   Admin
                 </Link>
               )}
-              <Link href="/account" className="text-sm font-medium text-slate-700">
+              {isAdmin(user.role) && (
+                <Link href="/admin" className="rounded-lg px-2 py-1 text-xs font-semibold text-emerald-700 sm:hidden">
+                  Admin
+                </Link>
+              )}
+              <Link href="/account" className="max-w-[7rem] truncate text-sm font-medium text-slate-700 sm:max-w-none">
                 {user.username}
               </Link>
             </>
           ) : (
-            <>
-              <Link href="/login" className="btn-ghost text-sm py-1.5">
-                Log in
-              </Link>
-              <Link href="/signup" className="btn-primary text-sm py-1.5 px-3">
-                Sign up
-              </Link>
-            </>
+            <Link href="/login" className="text-sm font-medium text-emerald-700 sm:btn-ghost sm:py-1.5">
+              Log in
+            </Link>
           )}
         </div>
       </div>

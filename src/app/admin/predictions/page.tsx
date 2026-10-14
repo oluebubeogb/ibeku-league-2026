@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { getSessionUser, isAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { formatPredictionLabel, formatPredDate } from "@/lib/prediction-label";
+import { formatPredictionLabel } from "@/lib/prediction-label";
+import { AdminPredictionsFilter } from "@/components/AdminPredictionsFilter";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin · Predictions" };
@@ -10,67 +11,83 @@ export default async function AdminPredictionsPage() {
   const user = await getSessionUser();
   if (!user || !isAdmin(user.role)) redirect("/login");
 
-  const predictions = await prisma.prediction.findMany({
-    include: {
-      user: { select: { id: true, username: true, phone: true } },
-      match: { include: { homeTeam: true, awayTeam: true } },
-    },
-    orderBy: { createdAt: "desc" },
-    take: 100,
+  const [predictions, allMatches, total] = await Promise.all([
+    prisma.prediction.findMany({
+      include: {
+        user: { select: { id: true, username: true, phone: true } },
+        match: { include: { homeTeam: true, awayTeam: true } },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 500,
+    }),
+    prisma.match.findMany({
+      include: { homeTeam: true, awayTeam: true, group: true },
+      orderBy: { kickoffAt: "desc" },
+    }),
+    prisma.prediction.count(),
+  ]);
+
+  // Double-entry counts: userId + matchId + type
+  const typeCounts = new Map<string, number>();
+  for (const p of predictions) {
+    const k = `${p.userId}:${p.matchId}:${p.type}`;
+    typeCounts.set(k, (typeCounts.get(k) || 0) + 1);
+  }
+
+  const rows = predictions.map((p) => {
+    const home = p.match.homeTeam?.name || p.match.homeSlot || "Home";
+    const away = p.match.awayTeam?.name || p.match.awaySlot || "Away";
+    const k = `${p.userId}:${p.matchId}:${p.type}`;
+    const tc = typeCounts.get(k) || 1;
+    let outcome: "correct" | "wrong" | "double" | "pending" = "pending";
+    if (p.status === "GRADED" && p.isCorrect != null) {
+      if (tc > 1) outcome = "double";
+      else outcome = p.isCorrect ? "correct" : "wrong";
+    }
+    return {
+      id: p.id,
+      username: p.user.username,
+      phone: p.user.phone,
+      matchId: p.matchId,
+      matchLabel: `${home} vs ${away}`,
+      label: formatPredictionLabel({
+        type: p.type,
+        selectedOutcome: p.selectedOutcome,
+        homeScore: p.homeScore,
+        awayScore: p.awayScore,
+        homeName: home,
+        awayName: away,
+      }),
+      status: p.status,
+      isCorrect: p.isCorrect,
+      outcome,
+      createdAt: p.createdAt.toISOString(),
+      createdAtMs: p.createdAt.getTime(),
+    };
   });
 
-  const total = await prisma.prediction.count();
+  const matchOptions = allMatches.map((m) => {
+    const home = m.homeTeam?.name || m.homeSlot || "Home";
+    const away = m.awayTeam?.name || m.awaySlot || "Away";
+    const g = m.group ? ` · Group ${m.group.code}` : "";
+    return { id: m.id, label: `${home} vs ${away}${g}` };
+  });
 
   return (
     <div className="container-app space-y-6 py-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">Predictions</h1>
-          <p className="text-sm text-slate-500">{total} total · latest 100</p>
+          <p className="text-sm text-slate-500">
+            {total} total · showing latest {predictions.length}
+          </p>
         </div>
-        <a href="/admin" className="btn-secondary text-sm">
+        <a href="/admin" className="btn-secondary text-sm shrink-0">
           ← Dashboard
         </a>
       </div>
 
-      <div className="card divide-y divide-slate-100">
-        {predictions.length === 0 ? (
-          <p className="p-6 text-center text-sm text-slate-400">No predictions yet.</p>
-        ) : (
-          predictions.map((p) => {
-            const home = p.match.homeTeam?.name || "Home";
-            const away = p.match.awayTeam?.name || "Away";
-            const label = formatPredictionLabel({
-              type: p.type,
-              selectedOutcome: p.selectedOutcome,
-              homeScore: p.homeScore,
-              awayScore: p.awayScore,
-              homeName: home,
-              awayName: away,
-            });
-            return (
-              <div key={p.id} className="px-4 py-3 text-sm">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-medium">{p.user.username}</span>
-                  <span className="text-xs text-slate-400">{p.user.phone}</span>
-                  <span className="text-slate-300">·</span>
-                  <span className="text-slate-600">
-                    {home} vs {away}
-                  </span>
-                </div>
-                <div className="mt-1 flex flex-wrap gap-2 text-xs">
-                  <span className="font-medium text-emerald-800">{label}</span>
-                  <span className="text-slate-400">{p.status}</span>
-                  {p.isCorrect != null && (
-                    <span>{p.isCorrect ? "✅ correct" : "❌ wrong"}</span>
-                  )}
-                  <span className="text-slate-400 ml-auto">{formatPredDate(p.createdAt)}</span>
-                </div>
-              </div>
-            );
-          })
-        )}
-      </div>
+      <AdminPredictionsFilter rows={rows} matches={matchOptions} />
     </div>
   );
 }

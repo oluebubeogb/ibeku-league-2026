@@ -73,7 +73,7 @@ export default async function TeamPage({ params }: { params: Promise<{ slug: str
         {allMatches.length === 0 ? (
           <p className="card p-6 text-center text-sm text-slate-500">No matches scheduled.</p>
         ) : (
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2 max-w-full">
             {allMatches.map((m) => (
               <MatchCard
                 key={m.id}
@@ -82,6 +82,12 @@ export default async function TeamPage({ params }: { params: Promise<{ slug: str
                 awayName={m.awayTeam?.name || ""}
                 homeShort={m.homeTeam?.shortName}
                 awayShort={m.awayTeam?.shortName}
+                homeColor1={m.homeTeam?.color1}
+                homeColor2={m.homeTeam?.color2}
+                homeColor3={m.homeTeam?.color3}
+                awayColor1={m.awayTeam?.color1}
+                awayColor2={m.awayTeam?.color2}
+                awayColor3={m.awayTeam?.color3}
                 homeScore={m.fullTimeHomeScore}
                 awayScore={m.fullTimeAwayScore}
                 htHome={m.halfTimeHomeScore}

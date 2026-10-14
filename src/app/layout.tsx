@@ -12,6 +12,14 @@ export const metadata: Metadata = {
   description:
     "Official platform for Ibeku League 2026 — fixtures, standings, predictions and AI analysis. Sponsored by High Chief Dickson Oguguo Nzenwa Aku Bara-Oha 1 Of Ibeku Ancient Kingdom.",
   metadataBase: new URL(process.env.APP_URL || "http://localhost:3000"),
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Ibeku League 2026",
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
 };
 
 export const viewport: Viewport = {
@@ -19,6 +27,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   themeColor: "#0f172a",
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
