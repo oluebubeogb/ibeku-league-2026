@@ -22,7 +22,7 @@ export async function Header() {
             IL
           </span>
           <span className="hidden truncate sm:inline">Ibeku League 2026</span>
-          <span className="truncate text-sm sm:hidden">Ibeku</span>
+          <span className="truncate text-sm sm:hidden">Ibeku League 2026</span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
