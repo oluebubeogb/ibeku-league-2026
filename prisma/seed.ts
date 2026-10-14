@@ -11,7 +11,7 @@ const GROUPS = [
 ];
 
 const TEAMS: { name: string; group: string; slug: string; shortName: string }[] = [
-  { name: "Amuzukwu", group: "A", slug: "amuzukwu", shortName: "AMU" },
+  { name: "Amuzukwu", group: "A", slug: "amuzukwu", shortName: "AMZ" },
   { name: "Umuhu Ajata", group: "A", slug: "umuhu-ajata", shortName: "UAJ" },
   { name: "Ikeaha FC", group: "A", slug: "ikeaha-fc", shortName: "IKE" },
   { name: "Ossah FC", group: "A", slug: "ossah-fc", shortName: "OSS" },
@@ -23,7 +23,7 @@ const TEAMS: { name: string; group: string; slug: string; shortName: string }[] 
   { name: "Afaraukwu FC", group: "C", slug: "afaraukwu-fc", shortName: "AFA" },
   { name: "Okwuta FC", group: "C", slug: "okwuta-fc", shortName: "OKW" },
   { name: "Iyienyi FC", group: "C", slug: "iyienyi-fc", shortName: "IYI" },
-  { name: "Ajata Okwuru FC", group: "D", slug: "ajata-okwuru-fc", shortName: "AJO" },
+  { name: "Ajata Okwuru FC", group: "D", slug: "ajata-okwuru-fc", shortName: "AJT" },
   { name: "Amuzuoro FC", group: "D", slug: "amuzuoro-fc", shortName: "AMZ" },
   { name: "Avonkwu FC", group: "D", slug: "avonkwu-fc", shortName: "AVO" },
   { name: "Amatoh FC", group: "D", slug: "amatoh-fc", shortName: "AMT" },

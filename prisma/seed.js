@@ -20,7 +20,7 @@ const GROUPS = [
 ];
 
 const TEAMS = [
-  { name: "Amuzukwu", group: "A", slug: "amuzukwu", shortName: "AMU" },
+  { name: "Amuzukwu", group: "A", slug: "amuzukwu", shortName: "AMZ" },
   { name: "Umuhu Ajata", group: "A", slug: "umuhu-ajata", shortName: "UAJ" },
   { name: "Ikeaha FC", group: "A", slug: "ikeaha-fc", shortName: "IKE" },
   { name: "Ossah FC", group: "A", slug: "ossah-fc", shortName: "OSS" },
