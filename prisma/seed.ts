@@ -123,7 +123,7 @@ async function seedFixtures(groupMap: Record<string, string>, teamMap: Record<st
     if (existing) continue;
 
     // Store as noon UTC on that calendar date so Lagos date is preserved (Lagos = UTC+1)
-    const kickoffAt = new Date(`${f.date}T11:00:00.000Z`);
+    const kickoffAt = new Date(`${f.date}T15:00:00.000Z`);
 
     await prisma.match.create({
       data: {
@@ -145,7 +145,7 @@ async function seedFixtures(groupMap: Record<string, string>, teamMap: Record<st
     });
     if (existing) continue;
 
-    const kickoffAt = new Date(`${k.date}T11:00:00.000Z`);
+    const kickoffAt = new Date(`${k.date}T15:00:00.000Z`);
     await prisma.match.create({
       data: {
         stage: k.stage,

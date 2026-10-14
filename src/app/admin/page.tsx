@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser, isAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { LogoutButton } from "@/components/LogoutButton";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin" };
@@ -27,10 +28,10 @@ export default async function AdminDashboard() {
 
   const links = [
     { href: "/admin/matches", label: "Matches & scores", desc: "Edit fixtures, scores, events" },
-    { href: "/admin/teams", label: "Teams", desc: "Manage teams and groups" },
+    { href: "/admin/teams", label: "Teams", desc: "Names, short codes, flag colours" },
     { href: "/admin/players", label: "Players & CSV", desc: "Roster management and import" },
     { href: "/admin/ai", label: "AI analysis", desc: "Generate, review, publish" },
-    { href: "/admin/predictions", label: "Predictions", desc: "Moderation and reports" },
+    { href: "/admin/predictions", label: "Predictions", desc: "Fan predictions overview" },
     { href: "/admin/users", label: "Users", desc: "Fan accounts" },
   ];
 
@@ -40,11 +41,14 @@ export default async function AdminDashboard() {
 
   return (
     <div className="container-app space-y-8 py-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Admin dashboard</h1>
-        <p className="mt-1 text-sm text-slate-500">
-          Signed in as {user.username} ({user.role})
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Admin dashboard</h1>
+          <p className="mt-1 text-sm text-slate-500">
+            Signed in as {user.username} ({user.role})
+          </p>
+        </div>
+        <LogoutButton className="btn-secondary text-sm text-red-600" />
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -71,12 +75,12 @@ export default async function AdminDashboard() {
       </div>
 
       <section>
-        <h2 className="mb-3 text-lg font-bold">Recent / upcoming matches</h2>
+        <h2 className="mb-3 text-lg font-bold">Quick match list</h2>
         <div className="card divide-y divide-slate-100">
           {recentMatches.map((m) => (
             <Link
               key={m.id}
-              href={`/admin/matches?edit=${m.id}`}
+              href="/admin/matches"
               className="flex items-center justify-between px-4 py-3 text-sm hover:bg-slate-50"
             >
               <span>
@@ -87,30 +91,6 @@ export default async function AdminDashboard() {
           ))}
         </div>
       </section>
-
-      <form action="/api/auth/logout" method="POST">
-        <button type="submit" className="btn-secondary text-sm" formAction={async () => {
-          "use server";
-          // handled by API route via client ideally
-        }}>
-          {/* Use client logout */}
-        </button>
-      </form>
-      <LogoutButton />
     </div>
-  );
-}
-
-function LogoutButton() {
-  return (
-    <form
-      action={async () => {
-        "use server";
-      }}
-    >
-      <a href="/api/auth/logout" className="btn-ghost text-sm text-red-600">
-        Log out (use browser POST via client)
-      </a>
-    </form>
   );
 }

@@ -121,7 +121,7 @@ async function main() {
         groupId: groupMap[f.group],
         homeTeamId: teamMap[f.home],
         awayTeamId: teamMap[f.away],
-        kickoffAt: new Date(f.date + "T11:00:00.000Z"),
+        kickoffAt: new Date(f.date + "T15:00:00.000Z"),
         status: "SCHEDULED",
         matchday: f.matchday,
         published: true,
@@ -138,7 +138,7 @@ async function main() {
         slotCode: k.slotCode,
         homeSlot: k.homeSlot,
         awaySlot: k.awaySlot,
-        kickoffAt: new Date(k.date + "T11:00:00.000Z"),
+        kickoffAt: new Date(k.date + "T15:00:00.000Z"),
         status: "SCHEDULED",
         published: true,
       },
@@ -206,6 +206,20 @@ async function main() {
     }
   } else {
     console.log("[seed] PRIMARY_ADMIN_* not set — skipping admin bootstrap");
+  }
+
+  
+  // Align any leftover TBC placeholders (11:00 UTC) on scheduled matches to 16:00 Lagos (15:00 UTC)
+  const scheduled = await prisma.match.findMany({
+    where: { status: "SCHEDULED" },
+  });
+  for (const m of scheduled) {
+    if (!m.kickoffAt) continue;
+    if (m.kickoffAt.getUTCHours() === 11 && m.kickoffAt.getUTCMinutes() === 0) {
+      const d = new Date(m.kickoffAt);
+      d.setUTCHours(15, 0, 0, 0);
+      await prisma.match.update({ where: { id: m.id }, data: { kickoffAt: d } });
+    }
   }
 
   console.log("[seed] Complete.");

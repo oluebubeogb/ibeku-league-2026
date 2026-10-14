@@ -35,9 +35,9 @@ export default async function AdminTeamsPage() {
           name: t.name,
           slug: t.slug,
           shortName: t.shortName,
-          color1: (t as { color1?: string }).color1 || "#16a34a",
-          color2: (t as { color2?: string }).color2 || "#ffffff",
-          color3: (t as { color3?: string }).color3 || "#0f172a",
+          color1: t.color1 || "#16a34a",
+          color2: t.color2 || "#ffffff",
+          color3: t.color3 || "#0f172a",
           groupCode: t.group.code,
           playerCount: t._count.players,
         }))}

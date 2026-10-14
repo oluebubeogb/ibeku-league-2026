@@ -31,9 +31,9 @@ export default async function GroupsPage() {
       slug: t.slug,
       shortName: t.shortName,
       groupCode: g.code,
-      color1: (t as { color1?: string }).color1,
-      color2: (t as { color2?: string }).color2,
-      color3: (t as { color3?: string }).color3,
+      color1: t.color1,
+      color2: t.color2,
+      color3: t.color3,
     }));
     const matchInputs = finished
       .filter((m) => m.groupId === g.id && m.homeTeamId && m.awayTeamId)

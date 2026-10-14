@@ -28,7 +28,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Match not found" }, { status: 404 });
     }
 
-    // Server-side cutoff
     if (match.status === "LIVE" || match.status === "HALF_TIME" || match.status === "FULL_TIME") {
       return NextResponse.json({ error: "Predictions are closed for this match" }, { status: 403 });
     }
@@ -43,20 +42,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Score required" }, { status: 400 });
     }
 
-    // Upsert: one correct-score per user/match; outcomes can also upsert on unique constraint
-    const prediction = await prisma.prediction.upsert({
-      where: {
-        userId_matchId_type: { userId: user.id, matchId, type },
-      },
-      update: {
-        selectedOutcome: selectedOutcome ?? null,
-        homeScore: homeScore ?? null,
-        awayScore: awayScore ?? null,
-        comment: comment ?? null,
-        status: "ACTIVE",
-        updatedAt: new Date(),
-      },
-      create: {
+    // Always create a new prediction (history kept; no replace)
+    const prediction = await prisma.prediction.create({
+      data: {
         userId: user.id,
         matchId,
         type,
@@ -68,7 +56,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ ok: true, id: prediction.id });
+    return NextResponse.json({ ok: true, id: prediction.id, createdAt: prediction.createdAt });
   } catch (e) {
     if (e instanceof AuthError) {
       return NextResponse.json({ error: e.message }, { status: e.status });

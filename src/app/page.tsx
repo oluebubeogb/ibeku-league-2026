@@ -8,41 +8,52 @@ import { SPONSOR, PREDICTION_DISCLAIMER } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 
 async function getHomeData() {
-  const [upcoming, recent, groups, teams, finishedMatches, analyses] = await Promise.all([
-    prisma.match.findMany({
-      where: { status: { in: ["SCHEDULED", "LIVE", "HALF_TIME"] }, published: true },
-      include: { homeTeam: true, awayTeam: true, group: true },
-      orderBy: { kickoffAt: "asc" },
-      take: 6,
-    }),
-    prisma.match.findMany({
-      where: { status: "FULL_TIME", published: true },
-      include: { homeTeam: true, awayTeam: true, group: true },
-      orderBy: { kickoffAt: "desc" },
-      take: 4,
-    }),
-    prisma.group.findMany({ orderBy: { displayOrder: "asc" }, include: { teams: true } }),
-    prisma.team.findMany({ include: { group: true } }),
-    prisma.match.findMany({
-      where: { status: "FULL_TIME", stage: "GROUP" },
-      select: {
-        homeTeamId: true,
-        awayTeamId: true,
-        fullTimeHomeScore: true,
-        fullTimeAwayScore: true,
-        status: true,
-        stage: true,
-      },
-    }),
-    prisma.aIAnalysis.findMany({
-      where: { status: "PUBLISHED" },
-      orderBy: { publishedAt: "desc" },
-      take: 2,
-      include: { match: { include: { homeTeam: true, awayTeam: true } } },
-    }),
-  ]);
+  const [liveMatches, lastResult, upcoming, recent, groups, teams, finishedMatches, analyses] =
+    await Promise.all([
+      prisma.match.findMany({
+        where: { status: { in: ["LIVE", "HALF_TIME"] }, published: true },
+        include: { homeTeam: true, awayTeam: true, group: true },
+        orderBy: { kickoffAt: "asc" },
+        take: 1,
+      }),
+      prisma.match.findFirst({
+        where: { status: "FULL_TIME", published: true },
+        include: { homeTeam: true, awayTeam: true },
+        orderBy: { kickoffAt: "desc" },
+      }),
+      prisma.match.findMany({
+        where: { status: { in: ["SCHEDULED", "LIVE", "HALF_TIME"] }, published: true },
+        include: { homeTeam: true, awayTeam: true, group: true },
+        orderBy: { kickoffAt: "asc" },
+        take: 6,
+      }),
+      prisma.match.findMany({
+        where: { status: "FULL_TIME", published: true },
+        include: { homeTeam: true, awayTeam: true, group: true },
+        orderBy: { kickoffAt: "desc" },
+        take: 4,
+      }),
+      prisma.group.findMany({ orderBy: { displayOrder: "asc" }, include: { teams: true } }),
+      prisma.team.findMany({ include: { group: true } }),
+      prisma.match.findMany({
+        where: { status: "FULL_TIME", stage: "GROUP" },
+        select: {
+          homeTeamId: true,
+          awayTeamId: true,
+          fullTimeHomeScore: true,
+          fullTimeAwayScore: true,
+          status: true,
+          stage: true,
+        },
+      }),
+      prisma.aIAnalysis.findMany({
+        where: { status: "PUBLISHED" },
+        orderBy: { publishedAt: "desc" },
+        take: 2,
+        include: { match: { include: { homeTeam: true, awayTeam: true } } },
+      }),
+    ]);
 
-  // Build one sample group table (Group A)
   const groupA = groups.find((g) => g.code === "A");
   let sampleTable = null;
   if (groupA) {
@@ -52,6 +63,9 @@ async function getHomeData() {
       slug: t.slug,
       shortName: t.shortName,
       groupCode: "A",
+      color1: t.color1,
+      color2: t.color2,
+      color3: t.color3,
     }));
     const matchInputs = finishedMatches
       .filter((m) => m.homeTeamId && m.awayTeamId)
@@ -63,52 +77,102 @@ async function getHomeData() {
         status: m.status,
         stage: m.stage,
       }));
-    sampleTable = calculateGroupTable(teamInputs, matchInputs);
+    sampleTable = calculateGroupTable(teamInputs, matchInputs).map((r) => {
+      const t = teamInputs.find((x) => x.id === r.teamId);
+      return { ...r, color1: t?.color1, color2: t?.color2, color3: t?.color3 };
+    });
   }
 
-  return { upcoming, recent, sampleTable, analyses, groupCount: groups.length, teamCount: teams.length };
+  return {
+    liveMatches,
+    lastResult,
+    upcoming,
+    recent,
+    sampleTable,
+    analyses,
+    groupCount: groups.length,
+    teamCount: teams.length,
+  };
 }
 
 export default async function HomePage() {
   const data = await getHomeData();
+  const live = data.liveMatches[0];
+  const highlight = live || data.lastResult;
 
   return (
     <div className="container-app space-y-8 py-6">
+      {/* Live / last result strip */}
+      {highlight && (
+        <Link
+          href={`/matches/${highlight.id}`}
+          className="block overflow-hidden rounded-xl border border-emerald-200 bg-gradient-to-r from-emerald-900 via-emerald-800 to-slate-900 px-4 py-3 text-white shadow-md transition hover:shadow-lg"
+        >
+          <p className="text-[11px] font-bold uppercase tracking-widest text-emerald-300">
+            {live ? (live.status === "HALF_TIME" ? "Half-time" : "Live") : "Full-time"}
+          </p>
+          <p className="mt-0.5 text-base font-semibold sm:text-lg">
+            {highlight.homeTeam?.name || "Home"}{" "}
+            <span className="tabular-nums text-emerald-300">
+              {highlight.fullTimeHomeScore ?? 0}–{highlight.fullTimeAwayScore ?? 0}
+            </span>{" "}
+            {highlight.awayTeam?.name || "Away"}
+          </p>
+        </Link>
+      )}
+
       {/* Hero */}
-      <section className="rounded-2xl bg-slate-900 px-5 py-8 text-white sm:px-8">
-        <p className="text-sm font-medium text-emerald-400">11 Oct 2026 – 3 Jan 2027</p>
-        <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">Ibeku League 2026</h1>
-        <p className="mt-2 max-w-xl text-sm text-slate-300">
+      <section className="relative overflow-hidden rounded-2xl bg-slate-900 px-5 py-8 text-white sm:px-8">
+        <div className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-emerald-500/20 blur-2xl" />
+        <div className="pointer-events-none absolute -bottom-10 left-10 h-32 w-32 rounded-full bg-amber-400/10 blur-2xl" />
+        <p className="relative text-sm font-medium text-emerald-400">11 Oct 2026 – 3 Jan 2027</p>
+        <h1 className="relative mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
+          Ibeku League 2026
+        </h1>
+        <p className="relative mt-2 max-w-xl text-sm text-slate-300">
           Official fixtures, live standings, fan predictions and AI match analysis for the Ibeku
           community league.
         </p>
-        <div className="mt-5 flex flex-wrap gap-3">
+        <div className="relative mt-5 flex flex-wrap gap-3">
           <Link href="/fixtures" className="btn-primary">
             View fixtures
           </Link>
-          <Link href="/groups" className="btn border border-slate-600 bg-slate-800 text-white hover:bg-slate-700">
+          <Link
+            href="/groups"
+            className="btn border border-slate-600 bg-slate-800 text-white hover:bg-slate-700"
+          >
             Group tables
           </Link>
         </div>
       </section>
 
-      {/* Sponsor */}
-      <section className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-center">
-        <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">Sponsored by</p>
-        <p className="mt-1 text-sm font-medium text-amber-950">{SPONSOR}</p>
+      {/* Sponsor — lively card */}
+      <section className="relative overflow-hidden rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50 via-lime-50 to-amber-50 px-5 py-5 shadow-sm">
+        <div className="pointer-events-none absolute -right-4 top-0 text-6xl opacity-20">⚽</div>
+        <div className="pointer-events-none absolute bottom-1 left-2 text-4xl opacity-15">🏆</div>
+        <div className="pointer-events-none absolute right-12 bottom-2 h-16 w-16 rounded-full bg-emerald-300/30 blur-xl" />
+        <p className="text-xs font-bold uppercase tracking-widest text-emerald-700">Sponsored by</p>
+        <p className="mt-2 text-sm font-semibold leading-snug text-emerald-950 sm:text-base">
+          {SPONSOR}
+        </p>
+        <p className="mt-2 text-[11px] text-emerald-800/70">Ibeku League 2026 · Community football</p>
       </section>
 
-      {/* Stats strip */}
+      {/* Stats strip — richer cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
-          { label: "Groups", value: data.groupCount },
-          { label: "Teams", value: data.teamCount },
-          { label: "Upcoming", value: data.upcoming.length },
-          { label: "Results", value: data.recent.length },
+          { label: "Groups", value: data.groupCount, emoji: "🏟️", tint: "from-emerald-500/15 to-emerald-600/5" },
+          { label: "Teams", value: data.teamCount, emoji: "👕", tint: "from-sky-500/15 to-sky-600/5" },
+          { label: "Upcoming", value: data.upcoming.length, emoji: "📅", tint: "from-amber-500/15 to-amber-600/5" },
+          { label: "Results", value: data.recent.length, emoji: "📊", tint: "from-violet-500/15 to-violet-600/5" },
         ].map((s) => (
-          <div key={s.label} className="card px-4 py-3 text-center">
+          <div
+            key={s.label}
+            className={`relative overflow-hidden rounded-xl border border-slate-200 bg-gradient-to-br ${s.tint} px-4 py-4 text-center shadow-sm`}
+          >
+            <span className="absolute right-2 top-2 text-lg opacity-40">{s.emoji}</span>
             <p className="text-2xl font-bold text-slate-900">{s.value}</p>
-            <p className="text-xs text-slate-500">{s.label}</p>
+            <p className="text-xs font-medium text-slate-600">{s.label}</p>
           </div>
         ))}
       </div>
@@ -133,12 +197,12 @@ export default async function HomePage() {
                 awayName={m.awayTeam?.name || ""}
                 homeShort={m.homeTeam?.shortName}
                 awayShort={m.awayTeam?.shortName}
-                homeColor1={(m.homeTeam as { color1?: string } | null)?.color1}
-                homeColor2={(m.homeTeam as { color2?: string } | null)?.color2}
-                homeColor3={(m.homeTeam as { color3?: string } | null)?.color3}
-                awayColor1={(m.awayTeam as { color1?: string } | null)?.color1}
-                awayColor2={(m.awayTeam as { color2?: string } | null)?.color2}
-                awayColor3={(m.awayTeam as { color3?: string } | null)?.color3}
+                homeColor1={m.homeTeam?.color1}
+                homeColor2={m.homeTeam?.color2}
+                homeColor3={m.homeTeam?.color3}
+                awayColor1={m.awayTeam?.color1}
+                awayColor2={m.awayTeam?.color2}
+                awayColor3={m.awayTeam?.color3}
                 homeScore={m.fullTimeHomeScore}
                 awayScore={m.fullTimeAwayScore}
                 status={m.status}
@@ -153,7 +217,6 @@ export default async function HomePage() {
         )}
       </section>
 
-      {/* Recent results */}
       {data.recent.length > 0 && (
         <section>
           <div className="mb-3 flex items-center justify-between">
@@ -171,12 +234,12 @@ export default async function HomePage() {
                 awayName={m.awayTeam?.name || ""}
                 homeShort={m.homeTeam?.shortName}
                 awayShort={m.awayTeam?.shortName}
-                homeColor1={(m.homeTeam as { color1?: string } | null)?.color1}
-                homeColor2={(m.homeTeam as { color2?: string } | null)?.color2}
-                homeColor3={(m.homeTeam as { color3?: string } | null)?.color3}
-                awayColor1={(m.awayTeam as { color1?: string } | null)?.color1}
-                awayColor2={(m.awayTeam as { color2?: string } | null)?.color2}
-                awayColor3={(m.awayTeam as { color3?: string } | null)?.color3}
+                homeColor1={m.homeTeam?.color1}
+                homeColor2={m.homeTeam?.color2}
+                homeColor3={m.homeTeam?.color3}
+                awayColor1={m.awayTeam?.color1}
+                awayColor2={m.awayTeam?.color2}
+                awayColor3={m.awayTeam?.color3}
                 homeScore={m.fullTimeHomeScore}
                 awayScore={m.fullTimeAwayScore}
                 htHome={m.halfTimeHomeScore}
@@ -191,7 +254,6 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Sample group table */}
       {data.sampleTable && data.sampleTable.length > 0 && (
         <section>
           <div className="mb-3 flex items-center justify-between">
@@ -209,7 +271,6 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* AI analysis */}
       {data.analyses.length > 0 && (
         <section>
           <h2 className="mb-3 text-lg font-bold text-slate-900">AI analysis</h2>
@@ -224,7 +285,6 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Disclaimer */}
       <p className="text-center text-xs text-slate-400">{PREDICTION_DISCLAIMER}</p>
     </div>
   );

@@ -5,9 +5,11 @@ export function Footer() {
   return (
     <footer className="mt-auto border-t border-slate-200 bg-slate-50 pb-20 md:pb-8">
       <div className="container-app py-8">
-        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-center text-sm text-amber-900">
-          <p className="font-medium">Official Sponsor</p>
-          <p className="mt-1">{SPONSOR}</p>
+        <div className="relative mb-4 overflow-hidden rounded-xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50 via-lime-50/80 to-amber-50 px-4 py-4 text-center">
+          <div className="pointer-events-none absolute -left-2 top-1 text-3xl opacity-20">⚽</div>
+          <div className="pointer-events-none absolute -right-1 bottom-0 text-3xl opacity-20">🏆</div>
+          <p className="text-xs font-bold uppercase tracking-widest text-emerald-700">Official Sponsor</p>
+          <p className="mt-1.5 text-sm font-semibold text-emerald-950">{SPONSOR}</p>
         </div>
 
         <div className="flex flex-col items-center gap-4 text-center text-sm text-slate-500 sm:flex-row sm:justify-between">

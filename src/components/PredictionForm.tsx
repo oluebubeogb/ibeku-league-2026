@@ -45,7 +45,8 @@ export function PredictionForm({ matchId, homeName, awayName }: Props) {
         setMsg(data.error || "Failed");
         return;
       }
-      setMsg("Saved!");
+      setMsg("Prediction saved!");
+      setComment("");
       router.refresh();
     } catch {
       setMsg("Network error");
@@ -55,20 +56,26 @@ export function PredictionForm({ matchId, homeName, awayName }: Props) {
   }
 
   return (
-    <div className="card p-4 space-y-3">
-      <p className="text-xs font-medium text-slate-500">Your prediction</p>
+    <div className="rounded-lg border border-emerald-100 bg-emerald-50/40 p-4 space-y-3">
+      <p className="text-xs font-semibold uppercase tracking-wide text-emerald-800">Your prediction</p>
 
       <div className="flex flex-wrap gap-2">
-        {["HOME", "DRAW", "AWAY"].map((o) => (
+        {(
+          [
+            { key: "HOME", label: `${homeName} Win` },
+            { key: "DRAW", label: "Draw" },
+            { key: "AWAY", label: `${awayName} Win` },
+          ] as const
+        ).map((o) => (
           <button
-            key={o}
+            key={o.key}
             type="button"
-            onClick={() => setOutcome(o)}
+            onClick={() => setOutcome(o.key)}
             className={`btn text-xs py-1.5 px-3 ${
-              outcome === o ? "bg-emerald-600 text-white" : "btn-secondary"
+              outcome === o.key ? "bg-emerald-600 text-white" : "btn-secondary"
             }`}
           >
-            {o === "HOME" ? homeName : o === "AWAY" ? awayName : "Draw"}
+            {o.label}
           </button>
         ))}
         <button
@@ -120,7 +127,7 @@ export function PredictionForm({ matchId, homeName, awayName }: Props) {
         onChange={(e) => setComment(e.target.value)}
       />
 
-      {msg && <p className="text-xs text-emerald-600">{msg}</p>}
+      {msg && <p className="text-xs text-emerald-700 font-medium">{msg}</p>}
     </div>
   );
 }

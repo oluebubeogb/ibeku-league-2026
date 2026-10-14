@@ -19,7 +19,7 @@ export function formatMatchTime(date: Date | string | null | undefined): string 
   const d = typeof date === "string" ? new Date(date) : date;
   const hours = d.getUTCHours();
   const mins = d.getUTCMinutes();
-  // Placeholder times from seed (11:00 UTC)
+  // Legacy placeholder from early seed (11:00 UTC only)
   if (hours === 11 && mins === 0) return "Time TBC";
   return formatInTimeZone(d, LAGOS_TZ, "HH:mm");
 }
