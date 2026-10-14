@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { CreateAdminForm } from "@/components/CreateAdminForm";
+import { AdminAccountsManager } from "@/components/AdminAccountsManager";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin · Admins" };
@@ -28,31 +28,26 @@ export default async function AdminAdminsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Admin accounts</h1>
-          <p className="text-sm text-slate-500">Primary admin only</p>
+          <p className="text-sm text-slate-500">
+            Primary admin only — edit secondary admins below
+          </p>
         </div>
         <a href="/admin" className="btn-secondary text-sm">
           ← Dashboard
         </a>
       </div>
 
-      <div className="card divide-y divide-slate-100">
-        {admins.map((a) => (
-          <div key={a.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
-            <div>
-              <p className="font-medium">{a.username}</p>
-              <p className="text-xs text-slate-500">
-                {a.role} · {a.phone} · {a.status}
-              </p>
-            </div>
-            <span className="text-xs text-slate-400">{a.createdAt.toISOString().slice(0, 10)}</span>
-          </div>
-        ))}
-      </div>
-
-      <section>
-        <h2 className="mb-3 text-lg font-bold">Create secondary admin</h2>
-        <CreateAdminForm />
-      </section>
+      <AdminAccountsManager
+        primaryId={user.id}
+        admins={admins.map((a) => ({
+          id: a.id,
+          username: a.username,
+          phone: a.phone,
+          role: a.role,
+          status: a.status,
+          createdAt: a.createdAt.toISOString().slice(0, 10),
+        }))}
+      />
     </div>
   );
 }
