@@ -32,7 +32,7 @@ const TEAMS = [
   { name: "Afaraukwu FC", group: "C", slug: "afaraukwu-fc", shortName: "AFA" },
   { name: "Okwuta FC", group: "C", slug: "okwuta-fc", shortName: "OKW" },
   { name: "Iyienyi FC", group: "C", slug: "iyienyi-fc", shortName: "IYI" },
-  { name: "Ajata Okwuru FC", group: "D", slug: "ajata-okwuru-fc", shortName: "AJO" },
+  { name: "Ajata Okwuru FC", group: "D", slug: "ajata-okwuru-fc", shortName: "AJT" },
   { name: "Amuzuoro FC", group: "D", slug: "amuzuoro-fc", shortName: "AMZ" },
   { name: "Avonkwu FC", group: "D", slug: "avonkwu-fc", shortName: "AVO" },
   { name: "Amatoh FC", group: "D", slug: "amatoh-fc", shortName: "AMT" },
@@ -149,7 +149,7 @@ async function main() {
     { key: "competition_name", value: "Ibeku League 2026" },
     {
       key: "sponsor",
-      value: "High Chief Dickson Oguguo Nzenwa Aku Bara-Oha 1 Of Ibeku Ancient Kingdom",
+      value: "High Chief Dickson Oguguo Nzenwa. Aku Bara-Oha 1 Of Ibeku Ancient Kingdom",
     },
     { key: "qualification_top_n", value: "2" },
     {

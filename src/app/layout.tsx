@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     template: "%s · Ibeku League 2026",
   },
   description:
-    "Official platform for Ibeku League 2026 — fixtures, standings, predictions and AI analysis. Sponsored by High Chief Dickson Oguguo Nzenwa Aku Bara-Oha 1 Of Ibeku Ancient Kingdom.",
+    "Official platform for Ibeku League 2026 — fixtures, standings, predictions and AI analysis. Sponsored by High Chief Dickson Oguguo Nzenwa. Aku Bara-Oha 1 Of Ibeku Ancient Kingdom.",
   metadataBase: new URL(process.env.APP_URL || "http://localhost:3000"),
   appleWebApp: {
     capable: true,

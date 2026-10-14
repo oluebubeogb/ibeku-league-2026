@@ -4,7 +4,7 @@ Official full-stack platform for **Ibeku League 2026** (11 Oct 2026 – 3 Jan 20
 
 Mobile-first website with fixtures, results, group tables, knockout bracket, fan predictions (no money), player rosters/CSV import, admin console, AI match analysis (RunPod), and Docker/Coolify deployment.
 
-**Sponsor:** High Chief Dickson Oguguo Nzenwa Aku Bara-Oha 1 Of Ibeku Ancient Kingdom.
+**Sponsor:** High Chief Dickson Oguguo Nzenwa. Aku Bara-Oha 1 Of Ibeku Ancient Kingdom.
 
 ---
 

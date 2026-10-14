@@ -21,7 +21,7 @@ export default function TermsPage() {
           accordingly.
         </p>
         <p>
-          Sponsored by High Chief Dickson Oguguo Nzenwa Aku Bara-Oha 1 Of Ibeku Ancient Kingdom.
+          Sponsored by High Chief Dickson Oguguo Nzenwa. Aku Bara-Oha 1 Of Ibeku Ancient Kingdom.
           The sponsor does not administer the technical platform unless explicitly configured as
           an administrator account.
         </p>

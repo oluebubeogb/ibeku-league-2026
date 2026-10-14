@@ -163,7 +163,7 @@ async function seedFixtures(groupMap: Record<string, string>, teamMap: Record<st
 async function seedSettings() {
   const settings = [
     { key: "competition_name", value: "Ibeku League 2026" },
-    { key: "sponsor", value: "High Chief Dickson Oguguo Nzenwa Aku Bara-Oha 1 Of Ibeku Ancient Kingdom" },
+    { key: "sponsor", value: "High Chief Dickson Oguguo Nzenwa. Aku Bara-Oha 1 Of Ibeku Ancient Kingdom" },
     { key: "qualification_top_n", value: "2" },
     { key: "prediction_disclaimer", value: "Predictions are for entertainment only. No money or prizes are staked or paid through this platform." },
     { key: "timezone", value: "Africa/Lagos" },

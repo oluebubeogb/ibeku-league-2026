@@ -66,7 +66,7 @@ export function statusColor(status: string): string {
 }
 
 export const SPONSOR =
-  "High Chief Dickson Oguguo Nzenwa Aku Bara-Oha 1 Of Ibeku Ancient Kingdom";
+  "High Chief Dickson Oguguo Nzenwa. Aku Bara-Oha 1 Of Ibeku Ancient Kingdom";
 
 export const PREDICTION_DISCLAIMER =
   "Predictions are for entertainment only. No money or prizes are staked or paid through this platform.";
